@@ -47,19 +47,26 @@ y_test = y[NUM_TRAIN:]
 #####################
 
 # Import your CV package here (either your my_cross_val or sci-kit learn )
+from my_cross_val import my_cross_val
+from my_cross_val import zero_one
 
 eta_vals = [0.00001, 0.0001, 0.001]
 C_vals = [0.01, 0.1, 1, 10, 100]
 
 # SVM
+errs = []
 for eta_val in eta_vals:
     for c_val in C_vals:
 
         # instantiate svm object
+        svm = MySVM(1e-10, 100, eta_val, c_val)
 
         # call to CV function to compute error rates for each fold
+        total_err = my_cross_val(svm, 'err_rate', X_train, y_train, k=10)
+        errs.append(total_err)
 
         # print error rates from CV
+        print(f"Total Error (eta = {eta_val}): {total_err}")
 
 # instantiate svm object for best value of eta and C
 

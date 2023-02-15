@@ -45,33 +45,38 @@ y_test = y[NUM_TRAIN:]
 
 # Import your CV package here (either your my_cross_val or sci-kit learn )
 from my_cross_val import my_cross_val
+from my_cross_val import zero_one
 from sklearn.linear_model import SGDClassifier
 
 eta_vals = [0.000001, 0.00001, 0.0001, 0.001, 0.01]
 
 # Logistic Regression
+errs = []
 for eta_val in eta_vals:
 
     # instantiate logistic regression object
-    sklgr = SGDClassifier(loss='log_loss', alpha=eta_val, eta0=eta_val, learning_rate='constant')
-
     lgr = MyLogisticRegression(1e-10, 100, eta_val)
 
     # call to CV function to compute error rates for each fold
     total_err = my_cross_val(lgr, 'err_rate', X_train, y_train, k=10)
+    errs.append(total_err)
 
     # print error rates from CV
     print(f"Total Error (eta = {eta_val}): {total_err}")
 
-    total_err = my_cross_val(sklgr, 'err_rate', X_train, y_train, k=10)
-    print(f"SKLearn Error: {total_err}")
-
 # instantiate logistic regression object for best value of eta
+best_eta = eta_vals[np.argmin(errs)]
+
+lgr = MyLogisticRegression(1e-10, 100, best_eta)
 
 # fit model using all training data
+lgr.fit(X_train, y_train)
 
 # predict on test data
+preds = lgr.predict(X_test)
 
 # compute error rate on test data
+error = zero_one(y_test, preds)
 
 # print error rate on test data
+print(f"Best eta: {best_eta}\nError: {error}")
