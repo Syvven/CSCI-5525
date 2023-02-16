@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class MyLogisticRegression:
 
@@ -13,6 +14,9 @@ class MyLogisticRegression:
 
         preds = np.inner(self.w, X)
         probs = self.sigmoid(preds)
+        neg_probs = self.sigmoid(-preds)
+        np.clip(probs, 0, 1, out=probs)
+        np.clip(neg_probs, 0, 1, out=neg_probs)
 
         for it in range(self.iters):
             # use loss function described in the homework page
@@ -21,7 +25,7 @@ class MyLogisticRegression:
             # is only for yi and xi not just y and X
 
             # i was having issues with divide by zero so had to add some wiggle here
-            loss = y*np.log(probs + 1e-15) + (1 - y)*np.log(1 - probs + 1e-15)
+            loss = y*np.log(probs+1e-15) + (1 - y)*np.log(neg_probs+1e-15)
             loss = np.mean(loss)
 
             # Derivation from question 1
@@ -34,20 +38,26 @@ class MyLogisticRegression:
             #     for i in range(X.shape[0]):
             #         total += self.temp_grad(X[i], y[i], j)
             #     self.w[j] -= self.lr * total
-
+            grads = [0]*(self.w.shape[0])
             for j in range(self.w.shape[0]):
-                self.w[j] -= self.lr * self.grad(X.T[j], y, X)
+                grads[j] += self.grad(X.T[j], y, X)
+            
+            for j,grad in enumerate(grads):  
+                self.w[j] -= self.lr * grad
 
             preds = np.inner(self.w, X)
             probs = self.sigmoid(preds)
+            neg_probs = self.sigmoid(-preds)
+            np.clip(probs, 0, 1, out=probs)
+            np.clip(neg_probs, 0, 1, out=neg_probs)
 
             # i was having issues with divide by zero so had to add some wiggle here
-            new_loss = y*np.log(probs + 1e-15) + (1 - y)*np.log(1 - probs + 1e-15)
+            new_loss = y*np.log(probs + 1e-15) + (1 - y)*np.log(neg_probs + 1e-15)
             new_loss = np.mean(new_loss)
 
             # if no change, we have converged, break early
             if (np.abs(new_loss-loss) < self.d):
-                break
+                return
 
     # derivation from question 1, the slow version
     def temp_grad(self, xi, yi, j):
@@ -69,6 +79,7 @@ class MyLogisticRegression:
         ret = np.zeros(X.shape[0])
         preds = np.inner(self.w, X)
         probs = self.sigmoid(preds)
+        np.clip(probs, 0, 1, out=probs)
         ret[probs >= 0.5] = 1
 
         return ret
