@@ -18,13 +18,13 @@ class MyLogisticRegression:
         np.clip(probs, 0, 1, out=probs)
         np.clip(neg_probs, 0, 1, out=neg_probs)
 
-        for it in range(self.iters):
+        for _ in range(self.iters):
             # use loss function described in the homework page
             # assuming we have to take the average of all of the ones
             # added together because the homework page loss function
             # is only for yi and xi not just y and X
 
-            # i was having issues with divide by zero so had to add some wiggle here
+            # i was having issues with log zero so had to add some wiggle here
             loss = y*np.log(probs+1e-15) + (1 - y)*np.log(neg_probs+1e-15)
             loss = np.mean(loss)
 
@@ -51,7 +51,7 @@ class MyLogisticRegression:
             np.clip(probs, 0, 1, out=probs)
             np.clip(neg_probs, 0, 1, out=neg_probs)
 
-            # i was having issues with divide by zero so had to add some wiggle here
+            # i was having issues with log zero so had to add some wiggle here
             new_loss = y*np.log(probs + 1e-15) + (1 - y)*np.log(neg_probs + 1e-15)
             new_loss = np.mean(new_loss)
 
