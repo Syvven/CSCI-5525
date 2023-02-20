@@ -18,7 +18,7 @@ class MyLogisticRegression:
         np.clip(probs, 0, 1, out=probs)
         np.clip(neg_probs, 0, 1, out=neg_probs)
 
-        for _ in range(self.iters):
+        for it in range(self.iters):
             # use loss function described in the homework page
             # assuming we have to take the average of all of the ones
             # added together because the homework page loss function
@@ -58,6 +58,7 @@ class MyLogisticRegression:
             # if no change, we have converged, break early
             if (np.abs(new_loss-loss) < self.d):
                 return
+        # quit()
 
     # derivation from question 1, the slow version
     def temp_grad(self, xi, yi, j):

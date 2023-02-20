@@ -55,7 +55,7 @@ errs = []
 for eta_val in eta_vals:
 
     # instantiate logistic regression object
-    lgr = MyLogisticRegression(1e-10, 100, eta_val)
+    lgr = MyLogisticRegression(1e-10, 1000, eta_val)
 
     # call to CV function to compute error rates for each fold
     total_err, err_array = my_cross_val(lgr, 'err_rate', X_train, y_train, k=10, ridge=True)
@@ -63,20 +63,20 @@ for eta_val in eta_vals:
 
     # print error rates from CV
     print(f"Total Error: {total_err}")
-    print(f"Eta Val: {eta_val}")
-    print("Error Values For Logistic Regression: ")
-    print(err_array)
-    mean = total_err / len(err_array)
-    print(f"Mean error rate From Logistic Regression: {mean}")
+    # print(f"Eta Val: {eta_val}")
+    # print("Error Values For Logistic Regression: ")
+    # print(err_array)
+    # mean = total_err / len(err_array)
+    # print(f"Mean error rate From Logistic Regression: {mean}")
 
-    stddev = 0
-    for i in range(len(err_array)):
-        stddev += (err_array[i] - mean)**2
+    # stddev = 0
+    # for i in range(len(err_array)):
+    #     stddev += (err_array[i] - mean)**2
 
-    stddev /= len(err_array)
-    stddev = math.sqrt(stddev)
+    # stddev /= len(err_array)
+    # stddev = math.sqrt(stddev)
 
-    print(f"Std dev from Logistic Regression: {stddev}")
+    # print(f"Std dev from Logistic Regression: {stddev}")
 
 # instantiate logistic regression object for best value of eta
 best_eta = eta_vals[np.argmin(errs)]

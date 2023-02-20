@@ -21,7 +21,7 @@ class MySVM:
         previous_loss = -2
         grad_w = np.zeros(self.w.shape)
         grad_b = 0
-        for _ in range(self.iters-1):
+        for it in range(self.iters-1):
             # check for convergence
             # I put this first so as to more easily do 
             #  this check, rather than having to do stuff before
@@ -33,6 +33,8 @@ class MySVM:
             current_loss = (self.w**2).sum()*0.5
 
             # update gradients
+            # grad_w /= self.w.shape[0]
+
             self.w -= self.lr * grad_w
             self.b -= self.lr * grad_b
 

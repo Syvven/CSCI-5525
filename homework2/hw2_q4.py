@@ -64,7 +64,7 @@ for eta_val in eta_vals:
     for c_val in C_vals:
 
         # instantiate svm object
-        svm = MySVM(1e-10, 100, eta_val, c_val)
+        svm = MySVM(1e-6, 100, eta_val, c_val)
 
         # call to CV function to compute error rates for each fold
         total_err, err_array = my_cross_val(svm, 'err_rate', X_train, y_train, k=10, ridge=True)
