@@ -42,14 +42,14 @@ optims = [
     "adam"
 ]
 
-for eta in lrs:
-    for optim in optims:
+for optim in optims:
+    for eta in lrs:
         mlp = MyMLP(
             input_size=28*28, 
             hidden_size=128, 
             output_size=10,
             learning_rate=eta, 
-            max_epochs=100
+            max_epochs=10
         )
 
         optimizer = None
@@ -68,4 +68,9 @@ for eta in lrs:
 
         train_loss, train_err = mlp.fit(train_loader, criterion, optimizer)
         test_loss, test_err = mlp.predict(test_loader, criterion)
+
+        print(train_loss)
+        print(train_err)
+        print(test_loss)
+        print(test_err)
 
