@@ -44,6 +44,23 @@ class MyMLP(nn.Module):
         optimizer: which optimization method to train the model.
         '''
 
+        # split the incoming training dataloader
+        #  into a train and validate loader
+
+        train_set, valid_set = torch.utils.data.random_split(
+            train_loader.dataset,
+            [0.7, 0.3], 
+            generator=torch.Generator().manual_seed(42)
+        )
+
+        train_loader_v2 = torch.utils.data.DataLoader(
+            train_set, batch_size=32, shuffle=False
+        )
+
+        valid_loader = torch.utils.data.DataLoader(
+            valid_set, batch_size=32, shuffle=False
+        )
+
         print("--------Training Model--------")
         print(f"Params:")
         print(f"lr = {self.lr}")
@@ -54,13 +71,14 @@ class MyMLP(nn.Module):
         epochs_loss = []
         epochs_err = []
         break_count = 0
-        max_break_count = 4
+        max_break_count = 5
+        min_err = 9e15
         for i in range(self.max_epochs):
             total_loss = 0
             total_err = 0
             total_samples = 0
             # Mini batch loop
-            for j,(images,labels) in enumerate(train_loader):
+            for j,(images,labels) in enumerate(train_loader_v2):
                 yact = torch.zeros(labels.shape[0], self.output_size)
                 ind1 = torch.arange(0, labels.shape[0], dtype=int)
                 yact[ind1, labels] = 1
@@ -85,15 +103,48 @@ class MyMLP(nn.Module):
 
                 optimizer.zero_grad()
 
+            # print stats
             epochs_loss.append(total_loss)
             epochs_err.append(total_err / total_samples)
             print(f"[{i}] Loss: {total_loss}, Error Rate: {epochs_err[-1]}")
-            if (len(epochs_loss) >= 2) and (epochs_loss[-1] > epochs_loss[-2]): 
-                break_count += 1
+            
+            # training step done, now validate
 
-            if break_count == max_break_count:
-                print("Loss Not Decreasing -- Stopping Early")
-                break
+            total_err = 0
+            total_samples = 0
+            with torch.no_grad(): # no backprop step so turn off gradients
+                for j,(images,labels) in enumerate(valid_loader):
+                    yact = torch.zeros(labels.shape[0], self.output_size)
+                    ind1 = torch.arange(0, labels.shape[0], dtype=int)
+                    yact[ind1, labels] = 1
+                    # Compute prediction output and loss
+                    yhat = self.forward(images)
+            
+                    # measure error rate
+
+                    for k,pred in enumerate(yhat):
+                        ind = np.argmax(pred.detach().numpy())
+                        total_err += 1 if labels[k].item() != ind else 0
+
+                    total_samples += images.shape[0]
+            valid_err = total_err/total_samples
+
+            # save best model
+            if (valid_err < min_err): 
+                min_err = valid_err
+                break_count = 0
+                torch.save(self.state_dict, "model_saves/mlp_best_model.pt")
+
+            print(f"[{i}] Validation Error Rate: {valid_err}, Best Validation Error Rate: {min_err}\n")
+
+            # break and load best model if overfitting
+            if (valid_err >= min_err):
+                break_count += 1
+                if (break_count == max_break_count):
+                    self.load_state_dict(
+                        torch.load("model_saves/mlp_best_model.pt")
+                    )
+                    break
             
         # Print/return training loss and error rate in each epoch
         return epochs_loss, epochs_err

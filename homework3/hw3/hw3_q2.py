@@ -73,4 +73,3 @@ for optim in optims:
         print(train_err)
         print(test_loss)
         print(test_err)
-
