@@ -1,5 +1,5 @@
-Noah Hendrickson
-ID: 5520241
+Name:  Noah Hendrickson
+ID:    5520241
 Email: hend0800@umn.edu
 
 How To Run:
@@ -11,3 +11,7 @@ for which question you want to run.
 Assumptions being made include having a folder in same directory
 as the python files called "model_saves" which contains two files 
 that are named cnn_best_model.pt and mlp_best_model.pt
+Another assumption is that the predictions are not actually 
+needed to be returned from the predict function. 
+Outside of those and the ones specified by the hw writeup,
+there are no other assumptions.
